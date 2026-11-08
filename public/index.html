@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>EddieHD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Nunito+Sans:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/hud.css">
+<link rel="stylesheet" href="css/setup.css">
+<link rel="stylesheet" href="css/menu.css">
+</head>
+<body>
+<canvas id="world" aria-hidden="true"></canvas>
+
+<div class="corner">
+  <div class="brand">EddieHD</div>
+  <dl class="help" aria-label="Shortcuts">
+    <dt><kbd>space</kbd></dt><dd>pause / resume</dd>
+    <dt><kbd>M</kbd></dt><dd>talk to Eddie</dd>
+    <dt><kbd>esc</kbd></dt><dd>menu</dd>
+    <dt><kbd>click</kbd></dt><dd>poke Eddie</dd>
+  </dl>
+</div>
+<main class="stage">
+  <div class="clock" aria-live="polite">
+    <div class="mode" id="mode"><i></i><span id="modeText">Ready</span></div>
+    <div class="time" id="time">25:00</div>
+    <div class="bar"><i id="bar"></i></div>
+    <div class="sub" id="sub">0 blocks · 0 phone catches</div>
+  </div>
+</main>
+
+<div class="status">
+  <div class="ind" id="indEye"><i></i><span>eye off</span></div>
+  <div class="ind" id="indEar"><i></i><span>ear off</span></div>
+  <div class="ind" id="indVoice"><i></i><span>voice</span></div>
+  <button class="iconbtn" id="micBtn" aria-label="Talk to Eddie (M)">
+    <svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+  </button>
+  <button class="iconbtn" id="menuBtn" aria-label="Open menu" aria-expanded="false">
+    <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+  </button>
+</div>
+
+<div class="bubble" id="bubble" hidden></div>
+
+<!-- Setup -->
+<div class="setup" id="setup">
+  <form class="card" id="setupForm">
+    <div>
+      <h1>Hello, friend.</h1>
+      <p class="lede">Set up session. Eddie walk around, guard your focus.</p>
+    </div>
+    <fieldset class="field">
+      <legend class="legend">Focus / break</legend>
+      <div class="seg">
+        <input type="radio" name="preset" id="p25" value="25,5"><label for="p25"><b>25 / 5</b><small>classic</small></label>
+        <input type="radio" name="preset" id="p50" value="50,10"><label for="p50"><b>50 / 10</b><small>deep work</small></label>
+        <input type="radio" name="preset" id="p1" value="1,0.5"><label for="p1"><b>1 / 0.5</b><small>quick demo</small></label>
+      </div>
+    </fieldset>
+    <fieldset class="field">
+      <legend class="legend">Senses</legend>
+      <label class="check"><input type="checkbox" id="setupCam"><span>Watch with camera<small>Spots your phone and an empty chair. Runs on this computer only.</small></span></label>
+      <label class="check"><input type="checkbox" id="setupWake"><span>Listen for "Hey Eddie"<small>Mic stays on during the session. Chrome sends what it hears to Google to turn speech into text.</small></span></label>
+    </fieldset>
+    <fieldset class="field">
+      <legend class="legend">Voice</legend>
+      <select class="voiceMode" id="setupVoice" aria-label="Voice">
+        <option value="neural">ElevenLabs voice (off for now)</option>
+        <option value="off">Off (speech bubbles only)</option>
+      </select>
+      <p class="note" id="setupVoiceNote"></p>
+    </fieldset>
+    <button type="submit" class="primary begin">Begin focus</button>
+  </form>
+</div>
+
+<!-- Menu -->
+<aside class="drawer" id="drawer" aria-label="Menu">
+  <header><h2>Menu</h2><button class="iconbtn" id="closeBtn" aria-label="Close menu"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></header>
+
+  <section>
+    <h3>Session</h3>
+    <div class="row">
+      <button class="primary" id="startBtn">Start focus</button>
+      <button id="pauseBtn">Pause</button>
+      <button id="skipBtn">Skip</button>
+      <button id="stopBtn">End session</button>
+    </div>
+    <div class="grid2">
+      <label for="presetSel">length</label>
+      <select id="presetSel">
+        <option value="25,5">25 / 5 min</option>
+        <option value="50,10">50 / 10 min</option>
+        <option value="1,0.5">Demo: 1 min / 30 s</option>
+      </select>
+    </div>
+    <div class="stats">
+      <div><b id="sDone">0</b><span>blocks done</span></div>
+      <div><b id="sDist">0</b><span>phone catches</span></div>
+      <div><b id="sAway">0</b><span>left desk</span></div>
+    </div>
+  </section>
+
+  <section>
+    <h3>Eye</h3>
+    <div class="cam">
+      <video id="video" playsinline muted></video>
+      <canvas id="boxes"></canvas>
+      <div class="empty" id="camEmpty">Camera off.</div>
+    </div>
+    <div class="row"><button id="camBtn">Turn on camera</button><span class="note" id="modelNote"></span></div>
+  </section>
+
+  <section>
+    <h3>Ear</h3>
+    <label class="check"><input type="checkbox" id="menuWake"><span>Listen for "Hey Eddie"<small>Eddie turns, faces you and waits for your question. Attention lasts about 8 seconds.</small></span></label>
+  </section>
+
+  <section>
+    <h3>Voice</h3>
+    <select class="voiceMode" id="menuVoice" aria-label="Voice">
+      <option value="neural">ElevenLabs voice (off for now)</option>
+      <option value="off">Off (speech bubbles only)</option>
+    </select>
+    <label class="check" id="fxRow"><input type="checkbox" id="fxOn"><span>Alien layer<small>Chorus and soft hum over the ElevenLabs voice.</small></span></label>
+    <div class="row"><button id="testVoice">Test voice</button><span class="note" id="menuVoiceNote"></span></div>
+  </section>
+
+  <section>
+    <h3>Talk</h3>
+    <div class="log" id="log"></div>
+    <form class="compose" id="compose">
+      <input type="text" id="text" placeholder="Type to Eddie…" autocomplete="off" aria-label="Message to Eddie">
+      <button type="submit">Send</button>
+    </form>
+  </section>
+
+  <section>
+    <h3>Testing</h3>
+    <div class="row">
+      <button class="toggle" id="simPhone" aria-pressed="false">Pretend: phone</button>
+      <button class="toggle" id="simAway" aria-pressed="false">Pretend: away</button>
+      <button id="simWake">Pretend: "Hey Eddie"</button>
+    </div>
+    <div class="faces" id="faces"></div>
+  </section>
+</aside>
+
+<!-- Scripts load in this order (defer = after the page is parsed). Later files use names defined by earlier ones. -->
+<script src="js/core.js" defer></script>
+<script src="js/robot/face.js" defer></script>
+<script src="js/robot/state.js" defer></script>
+<script src="js/robot/model.js" defer></script>
+<script src="js/robot/props.js" defer></script>
+<script src="js/robot/behavior.js" defer></script>
+<script src="js/robot/scene.js" defer></script>
+<script src="js/persona.js" defer></script>
+<script src="js/voice.js" defer></script>
+<script src="js/timer.js" defer></script>
+<script src="js/camera.js" defer></script>
+<script src="js/ears.js" defer></script>
+<script src="js/ui/hud.js" defer></script>
+<script src="js/ui/screens.js" defer></script>
+<script src="js/main.js" defer></script>
+</body>
+</html>

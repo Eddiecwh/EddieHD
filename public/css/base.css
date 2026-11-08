@@ -1,0 +1,128 @@
+/* EddieHD — base: colour/type tokens, reset, buttons and shared form controls.
+   Every other stylesheet builds on the tokens defined here. */
+
+/* Layout: the timer is the centrepiece. Below it runs a floor line where Eddie, a small robot, roams.
+   Status chips + menu sit top right; setup is a card before a session; everything else is in the menu. */
+:root {
+   --bg: #0b0f15;
+   --ink: #e9ecf2;
+   --muted: #8790a3;
+   --glass: rgba(16, 21, 30, .8);
+   --line: rgba(255, 255, 255, .09);
+   --glow: #5ef2e0;
+   --ok: #7be495;
+   --warn: #ffb547;
+   --bad: #ff5d5d;
+   --shell: #ece6d8;
+   --f-display: "Fredoka", "Avenir Next Rounded", ui-rounded, system-ui, sans-serif;
+   --f-body: "Nunito Sans", system-ui, -apple-system, sans-serif;
+   --f-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+   --gl: max(16px, env(safe-area-inset-left, 0px));
+   --gr: max(16px, env(safe-area-inset-right, 0px));
+   --gt: max(16px, env(safe-area-inset-top, 0px));
+   --gb: max(16px, env(safe-area-inset-bottom, 0px));
+   --floor-space: 260px;
+   /* set from JS: distance from the bottom of the window to the top of Eddie's antenna */
+   color-scheme: dark;
+}
+
+* {
+   box-sizing: border-box
+}
+
+[hidden] {
+   display: none !important
+}
+
+html,
+body {
+   height: 100%;
+   margin: 0;
+   overflow: hidden;
+   background: var(--bg);
+   color: var(--ink);
+   font: 14px/1.45 var(--f-body)
+}
+
+#world {
+   position: fixed;
+   inset: 0;
+   width: 100%;
+   height: 100%;
+   display: block
+}
+
+button,
+select,
+input[type=text] {
+   font: 600 14px var(--f-body);
+   color: var(--ink);
+   background: #ffffff0c;
+   border: 1px solid var(--line);
+   border-radius: 10px;
+   padding: 8px 12px
+}
+
+button {
+   cursor: pointer
+}
+
+button:hover {
+   background: #ffffff18
+}
+
+button:disabled {
+   opacity: .4;
+   cursor: not-allowed
+}
+
+:focus-visible {
+   outline: 2px solid var(--glow);
+   outline-offset: 2px
+}
+
+.primary {
+   background: var(--glow);
+   color: #03201c;
+   border-color: transparent
+}
+
+.primary:hover {
+   background: var(--glow);
+   filter: brightness(1.08)
+}
+
+a {
+   color: var(--glow)
+}
+
+/* ---------- Shared form bits (setup card + menu) ---------- */
+.check {
+   display: flex;
+   gap: 10px;
+   align-items: flex-start;
+   cursor: pointer
+}
+
+.check input {
+   margin-top: 3px;
+   accent-color: var(--glow);
+   width: 16px;
+   height: 16px;
+   flex: none
+}
+
+.check small {
+   display: block;
+   color: var(--muted)
+}
+
+.check:has(input:disabled) {
+   opacity: .45;
+   cursor: not-allowed
+}
+
+select:disabled {
+   opacity: .45;
+   cursor: not-allowed
+}

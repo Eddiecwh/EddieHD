@@ -1,0 +1,108 @@
+/* EddieHD — setup card shown before a session. */
+
+/* ---------- Setup ---------- */
+.setup {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  overflow-y: auto;
+  background: rgba(8, 11, 16, .55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  padding-block: 24px;
+  padding-left: var(--gl);
+  padding-right: var(--gr)
+}
+
+.setup .card {
+  width: min(440px, 100%);
+  background: var(--glass);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  box-shadow: 0 30px 80px -20px #000
+}
+
+.setup h1 {
+  margin: 0;
+  font: 600 30px/1.1 var(--f-display)
+}
+
+.setup .lede {
+  margin: 4px 0 0;
+  color: var(--muted)
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0
+}
+
+.legend {
+  font: 500 11px var(--f-mono);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 0
+}
+
+.seg {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px
+}
+
+.seg input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none
+}
+
+.seg label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: 10px 6px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: #ffffff08;
+  cursor: pointer;
+  text-align: center
+}
+
+.seg label b {
+  font: 500 17px var(--f-mono);
+  font-variant-numeric: tabular-nums
+}
+
+.seg label small {
+  font-size: 11.5px;
+  color: var(--muted)
+}
+
+.seg input:checked+label {
+  border-color: var(--glow);
+  background: color-mix(in srgb, var(--glow) 12%, transparent)
+}
+
+.seg input:focus-visible+label {
+  outline: 2px solid var(--glow);
+  outline-offset: 2px
+}
+
+.begin {
+  font: 600 17px var(--f-display);
+  padding: 13px;
+  border-radius: 14px
+}
