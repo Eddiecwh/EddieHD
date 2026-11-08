@@ -10,7 +10,10 @@ function toggleMenu() { const o = $('drawer').classList.toggle('open'); $('menuB
 function syncControls() {
   for (const r of document.querySelectorAll('input[name=preset]')) r.checked = r.value === prefs.preset;
   $('presetSel').value = prefs.preset;
+  for (const r of document.querySelectorAll('input[name=scene], input[name=sceneMenu]')) r.checked = r.value === prefs.scene;
   $('setupCam').checked = prefs.cam;
+  $('setupRain').checked = $('menuRain').checked = RAIN.on;
+  $('rainVol').value = prefs.rainVol;
   $('setupWake').checked = $('menuWake').checked = prefs.wake;
   $('setupWake').disabled = $('menuWake').disabled = !SR;
   const canVoice = VOICE_ENABLED && neural.ready;
@@ -32,6 +35,7 @@ $('setupForm').onsubmit = e => {
   e.preventDefault();
   savePref('preset', document.querySelector('input[name=preset]:checked')?.value || '25,5');
   savePref('cam', $('setupCam').checked);
+  if ($('setupRain').checked !== RAIN.on) setRain($('setupRain').checked);
   savePref('wake', $('setupWake').checked);
   savePref('voice', $('setupVoice').value);
   $('setup').hidden = true; syncControls();
@@ -40,6 +44,14 @@ $('setupForm').onsubmit = e => {
   startFocus();
 };
 for (const r of document.querySelectorAll('input[name=preset]')) r.onchange = () => { savePref('preset', r.value); syncControls(); };
+// picking a scene: Eddie drags it on (from the menu, close the menu so the show is visible)
+for (const r of document.querySelectorAll('input[name=scene], input[name=sceneMenu]')) r.onchange = () => {
+  savePref('scene', r.value); syncControls();
+  if (r.name === 'sceneMenu') closeMenu();
+  requestScene(r.value);
+};
+$('menuRain').onchange = e => setRain(e.target.checked);
+$('rainVol').oninput = e => savePref('rainVol', +e.target.value);
 $('presetSel').onchange = e => { savePref('preset', e.target.value); syncControls(); };
 for (const s of document.querySelectorAll('.voiceMode')) s.onchange = () => { stopVoice(); savePref('voice', s.value); syncControls(); };
 $('menuWake').onchange = e => { savePref('wake', e.target.checked); syncControls(); ear(); };

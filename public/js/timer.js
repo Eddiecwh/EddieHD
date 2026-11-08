@@ -6,7 +6,7 @@
    ============================================================ */
 const S = { mode: 'idle', paused: false, endAt: 0, remaining: 0, total: 1, done: 0, dist: 0, away: 0 };
 function lens() { const [f, b] = prefs.preset.split(',').map(Number); return { focus: f * 60, brk: b * 60 }; }
-function baseMood() { if (S.paused) return 'sleepy'; if (R.inPod) return 'charging'; if (R.act === 'computer') return 'focused'; if (S.mode === 'break') return 'happy'; return 'neutral'; }
+function baseMood() { if (S.paused) return 'sleepy'; if (R.inPod) return 'charging'; if (isWork(R.act)) return 'focused'; if (S.mode === 'break') return 'happy'; return 'neutral'; }
 function begin(mode) {
   const L2 = lens(); S.mode = mode; S.paused = false;
   S.total = S.remaining = mode === 'focus' ? L2.focus : L2.brk; S.endAt = Date.now() + S.total * 1000;

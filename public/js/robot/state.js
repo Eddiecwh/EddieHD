@@ -14,7 +14,15 @@ const R = {
   x: innerWidth * .3, vx: 0, tx: null, yaw: 0, headYaw: 0, headOff: 0, nextGlance: 0,
   act: 'look', actUntil: 0, stepT: 0, lastMode: 'idle', inPod: false,
   phase: 0, walkAmt: 0, run: 0, dip: 0, dipV: 0, sit: 0, typing: 0, armsUp: 0, dance: 0, tilt: 0, ball: 0, spread: 0, popY: 0, popStart: 0,
-  ant: 0, antV: 0, wave: 0, attendUntil: 0, alert: '', hop: 0, headTop: 0
+  ant: 0, antV: 0, wave: 0, attendUntil: 0, alert: '', hop: 0, headTop: 0,
+  haul: 0, haulDir: 1, handX: 0, handY: 0, shX: 0, shY: 0,  // hauling a new scene on (see stagehand.js); hand / shoulder on screen, CSS px
+  lift: 0, ladder: false, climb: 0, climbPh: 0,              // lift: units off the floor (bench seat, ladder); climb: climbing pose blend
+  sub: '', subT: 0, spotX: 0, hasBook: false, flipT: 0,      // steps inside a work activity (see work.js)
+  // hand targets [left (i = -1), right (i = +1)]: when on, the arm bends to put the hand at (x, y) — see grip() and reach()
+  hand: [{ x: 0, y: 0, bend: 1, rel: false, on: 0, w: 0 }, { x: 0, y: 0, bend: 1, rel: false, on: 0, w: 0 }],
+  hl: [{ x: 0, y: 0 }, { x: 0, y: 0 }],                      // where each hand ended up this frame (Eddie's own coordinates)
+  hold: { cup: 0, pen: 0, open: 0 },                         // what's in his hands this frame (items.js draws them)
+  umb: 0, umbTilt: 0,                                        // umbrella: 0 put away … 1 open overhead
 };
 // the one prop on stage at a time (desk or pod), moved by the claw
 const P = { kind: null, state: 'none', t: 0, x: 0, lift: 0, clawY: 0, closed: 1, scroll: 0, packPending: false, door: 0, doorT: 0 };
@@ -43,7 +51,7 @@ function statusColor() {
 }
 function attend(ms) { R.attendUntil = Math.max(R.attendUntil, performance.now() + ms); }
 // heading somewhere with purpose (desk, pod, getting out of the way) = run
-const maxSpeed = () => ((R.act === 'computer' || R.act === 'charge') ? 160 : 70) * L.k;
+const maxSpeed = () => ST.phase ? stageSpeed() : ((isWork(R.act) || R.act === 'charge') ? 160 : 70) * L.k;
 function randX(avoid) {
   let x, n = 0;
   do { x = L.minX + Math.random() * (L.maxX - L.minX); } while (avoid != null && Math.abs(x - avoid) < L.size * 1.1 && ++n < 25);

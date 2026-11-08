@@ -291,3 +291,8 @@
   background: var(--glow);
   color: #03201c
 }
+
+/* keep the timer readable over busy backdrops */
+.clock {
+  text-shadow: 0 2px 18px rgba(0, 0, 0, .55)
+}

@@ -3,7 +3,7 @@
 
 /* --- activities -------------------------------------------------------- */
 const ACTS = {
-  focus: [['computer', 6], ['wander', 2], ['look', 1]],
+  focus: [['work', 6], ['wander', 2], ['look', 1]],                   // work = this scene's job (work.js)
   break: [['charge', 1]],
   idle: [['wander', 3], ['look', 2], ['sit', 2], ['dance', 1], ['stretch', 1]],
 };
@@ -11,22 +11,24 @@ const DUR = { look: [3000, 3000], sit: [9000, 7000], dance: [6000, 5000], stretc
 function weighted(list) { let n = Math.random() * list.reduce((a, [, w]) => a + w, 0); for (const [k, w] of list) { if ((n -= w) < 0) return k; } return list[0][0]; }
 function setAct(a, now) {
   const from = R.act;
-  R.act = a; R.stepT = now; R.tx = null;
-  if (a === 'computer') R.actUntil = now + clamp(S.total * 1000 * .5, 20000, 120000) + Math.random() * 15000;
+  R.act = a; R.stepT = now; R.tx = null; R.sub = ''; R.spotX = 0;
+  if (a !== 'read') R.hasBook = false;                                // book goes back on the shelf
+  if (isWork(a)) R.actUntil = now + clamp(S.total * 1000 * .5, 20000, 120000) + Math.random() * 15000;
   else R.actUntil = now + DUR[a][0] + Math.random() * DUR[a][1];
-  if (a === 'wander') R.tx = randX(from === 'computer' && P.state !== 'none' ? P.x : R.x);
+  if (a === 'wander') R.tx = randX(isWork(from) && P.state !== 'none' ? P.x : R.x);
   if (!talking && !curSrc) setExpr(baseMood());
 }
 function nextAct(now) {
   if (S.paused) return setAct('sleep', now);
   let a = weighted(ACTS[S.mode] || ACTS.idle);
-  if ((a === 'computer' || a === 'charge') && R.act === a) { R.actUntil = now + 30000; return; }
+  if (a === 'work') a = workAct();
+  if ((isWork(a) || a === 'charge') && R.act === a) { R.actUntil = now + 30000; return; }
   if (a === R.act && a !== 'wander') a = 'wander';
   setAct(a, now);
 }
 function onModeChange(prev, mode, now) {
   if (mode === 'paused') return setAct('sleep', now);
-  if (mode === 'focus') return setAct('computer', now);
+  if (mode === 'focus') return setAct(workAct(), now);
   if (mode === 'break') return setAct('charge', now);
   return setAct('wander', now);
 }
@@ -35,13 +37,17 @@ function onModeChange(prev, mode, now) {
 function updateRobot(dt, now) {
   const mode = S.paused ? 'paused' : S.mode;
   if (mode !== R.lastMode) { const prev = R.lastMode; R.lastMode = mode; onModeChange(prev, mode, now); }
+  const staging = stageUpdate(dt, now);                                // changing scene: stagehand.js drives Eddie
   R.alert = (S.mode === 'focus' && !S.paused && (O.phoneStreak >= 2 || O.awayEpisode)) ? '!' : '';
-  const attending = !!(R.alert || awaiting || talking || curSrc || now < R.attendUntil);
+  const attending = !staging && !!(R.alert || awaiting || talking || curSrc || now < R.attendUntil);
   const wasInPod = R.inPod;
   R.inPod = P.kind === 'pod' && P.state === 'placed' && Math.abs(R.x - P.x) < 3 && R.tx == null;
 
-  let yawT = 0, headOff = 0, sitT = 0, typeT = 0, upT = 0, danceT = 0;
-  if (!attending) {
+  let yawT = 0, headOff = 0, sitT = 0, typeT = 0, upT = 0, danceT = 0, liftT = 0;
+  for (const h of R.hand) h.on = 0;                                    // activities re-grip every frame
+  R.hold.cup = R.hold.pen = R.hold.open = 0; DOG.pet = 0;
+  if (staging) { /* R.tx set by stageUpdate */ }
+  else if (!attending) {
     if (now > R.actUntil) nextAct(now);
     if (S.mode === 'idle' && R.act !== 'sleep') ensureProp(null);       // no desk or pod outside a session
     switch (R.act) {
@@ -65,6 +71,12 @@ function updateRobot(dt, now) {
           headOff = clamp((P.x - R.x) / L.size, -1, 1) * 1.1;            // watch the delivery
         }
         break;
+      case 'cafe': case 'bench': case 'read': {                         // the scene's focus job (work.js)
+        const ps = { yawT, headOff, sitT, liftT };
+        WORK_FN[R.act](ps, now, dt);
+        ({ yawT, headOff, sitT, liftT } = ps);
+        break;
+      }
       case 'charge':
         if (ensureProp('pod')) {
           if (Math.abs(R.x - P.x) > 2) { P.doorT = 0; if (R.tx == null) R.tx = P.x; }
@@ -76,7 +88,10 @@ function updateRobot(dt, now) {
     }
   } else {
     headOff = (R.alert && !O.person) ? Math.sin(now / 650) * .9 : 0;     // empty chair: look around for you
-    if (R.act === 'sit') sitT = 1;
+    if (R.act === 'sit' || (isWork(R.act) && R.act !== 'computer' && R.sit > .5)) sitT = 1;   // stay seated to listen
+    if (R.act === 'bench' && R.sit > .5) liftT = PARK.seat;
+    if (R.act === 'cafe' && R.sit > .5) liftT = STOOL_LIFT;
+    if (R.act === 'read' && R.sit > .5) { R.hold.open = 1; grip(-1, -24, -86, 1, true); grip(1, 24, -86, -1, true); }
   }
   if (R.inPod !== wasInPod && !talking && !curSrc) setExpr(baseMood());
 
@@ -84,7 +99,7 @@ function updateRobot(dt, now) {
   const maxSp = maxSpeed();
   if (!attending && R.tx != null) {
     sitT = 0;
-    if (R.sit < .15 && R.ball < .1 && !R.popStart) {                                  // stand up / unfold before walking
+    if (R.sit < .15 && R.ball < .1 && !R.popStart && !R.ladder) {                                  // stand up / unfold before walking
       const d = R.tx - R.x, dir = Math.sign(d) || 1;
       yawT = dir * (PI / 2 - .5);                                         // three-quarter view so his face stays visible
       const facing = Math.abs(near(R.yaw, yawT) - yawT) < .35;
@@ -104,9 +119,19 @@ function updateRobot(dt, now) {
   const spd = Math.abs(R.vx) / L.k;                                     // units per second
   R.run = lerp(R.run, clamp((spd - 85) / 50, 0, 1), k(6));              // 0 walk … 1 full run
   R.sit = lerp(R.sit, sitT, k(3));
+  if (R.ladder) {                                                      // on the ladder: climb toward liftT at a steady pace
+    const d = liftT - R.lift, step = 55 * dt;
+    if (Math.abs(d) > .3) { R.lift += clamp(d, -step, step); R.climbPh += dt * 7; }
+    if (R.lift <= .3 && liftT === 0) { R.ladder = false; R.lift = 0; }
+    else { R.x = ladderX(R.lift); R.vx = 0; R.tx = null; }
+    for (const i of [-1, 1]) if (!R.hand[i > 0 ? 1 : 0].on) grip(i, i * 18, -134 - 9 * Math.max(0, Math.sin(R.climbPh + (i > 0 ? PI : 0))), -i);  // hands on the rails
+  } else R.lift = lerp(R.lift, liftT, k(5));
+  R.climb = lerp(R.climb, R.ladder ? 1 : 0, k(8));
+  updateUmbrella(dt, staging);                                          // rain in the park (rain.js)
+  for (const h of R.hand) h.w = lerp(h.w, h.on, k(7));
   // paused: pack up step by step over 1.6 s. Unpaused from fully packed: pop out — a quick squash, then a jump
   // with arms and legs flung out in a star while the body unfolds in mid-air, and a bouncy landing.
-  if (S.paused) { R.popStart = 0; R.spread = 0; R.popY = 0; R.ball = Math.min(1, R.ball + dt / 1.6); }
+  if (S.paused && !staging) { R.popStart = 0; R.spread = 0; R.popY = 0; R.ball = Math.min(1, R.ball + dt / 1.6); }
   else {
     if (R.ball > .5 && !R.popStart) { R.popStart = now; R.dipV += 30; }
     if (R.popStart) {
@@ -121,7 +146,8 @@ function updateRobot(dt, now) {
   R.armsUp = lerp(R.armsUp, upT, k(3));
   R.dance = lerp(R.dance, danceT, k(4));
   R.tilt = lerp(R.tilt, awaiting ? .14 : 0, k(6));
-  R.x = clamp(R.x + R.vx * dt, L.minX, L.maxX);
+  const off = staging ? L.size * 4 : 0;                                  // he may walk off into the wings mid scene change
+  R.x = clamp(R.x + R.vx * dt, L.minX - off, L.maxX + off);
   R.walkAmt = lerp(R.walkAmt, clamp(spd / 42, 0, 1), k(8));
   R.phase += spd * dt / (30 * (1 + R.run * .45)) * PI;                           // longer strides when running
   if (R.walkAmt < .05) R.phase = lerp(R.phase, Math.round(R.phase / PI) * PI, k(6));   // settle feet together

@@ -32,5 +32,19 @@ const LINES = {
    joke: ["Why phone always tired, question? Many many notification. Is joke. You laugh now."],
    love: ["Eddie like friend also. Much much much."],
    sarcasm: ["Is sarcasm, question? Eddie not understand sarcasm. Eddie understand work."],
+   sceneStart: ["Understand. New place. Eddie bring.", "Understand. Scene change. Eddie strong. Watch watch watch."],
+   sceneLater: ["Understand. New place after nap."],
+   sceneDone: {
+      default: "Home stage again. Simple. Clean. Good.",
+      cafe: "Café now. Warm light. Cup smell. Good work place.",
+      park: "Park now. Tree. Grass. Bug glow. Nice nice nice.",
+      library: "Library now. Quiet. Quiet. Quiet. Book watch you work.",
+   },
+   rainOn: {
+      inside: "Rain outside. Inside dry. Cozy cozy cozy.",
+      park: "Rain! Eddie prepared. Umbrella. Smart smart smart.",
+      default: "Rain sound on. Brain calm. Good.",
+   },
+   rainOff: ["Rain stop. Sky dry now.", "Understand. No more rain."],
    unknown: ["Not understand. Say different, question?", "Words confuse. Say slow, friend."],
 };

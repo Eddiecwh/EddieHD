@@ -62,9 +62,22 @@
       </div>
     </fieldset>
     <fieldset class="field">
+      <legend class="legend">Scene</legend>
+      <div class="seg scenes">
+        <input type="radio" name="scene" id="sc-default" value="default"><label for="sc-default"><i class="sw default"></i><b>Default</b></label>
+        <input type="radio" name="scene" id="sc-cafe" value="cafe"><label for="sc-cafe"><i class="sw cafe"></i><b>Café</b></label>
+        <input type="radio" name="scene" id="sc-park" value="park"><label for="sc-park"><i class="sw park"></i><b>Park</b></label>
+        <input type="radio" name="scene" id="sc-library" value="library"><label for="sc-library"><i class="sw library"></i><b>Library</b></label>
+      </div>
+    </fieldset>
+    <fieldset class="field">
       <legend class="legend">Senses</legend>
       <label class="check"><input type="checkbox" id="setupCam"><span>Watch with camera<small>Spots your phone and an empty chair. Runs on this computer only.</small></span></label>
       <label class="check"><input type="checkbox" id="setupWake"><span>Listen for "Hey Eddie"<small>Mic stays on during the session. Chrome sends what it hears to Google to turn speech into text.</small></span></label>
+    </fieldset>
+    <fieldset class="field">
+      <legend class="legend">Sound</legend>
+      <label class="check"><input type="checkbox" id="setupRain"><span>Rain<small>Soft rain in the background. Eddie reacts to the weather.</small></span></label>
     </fieldset>
     <fieldset class="field">
       <legend class="legend">Voice</legend>
@@ -103,6 +116,23 @@
       <div><b id="sDist">0</b><span>phone catches</span></div>
       <div><b id="sAway">0</b><span>left desk</span></div>
     </div>
+  </section>
+
+  <section>
+    <h3>Scene</h3>
+    <div class="seg scenes">
+      <input type="radio" name="sceneMenu" id="scm-default" value="default"><label for="scm-default"><i class="sw default"></i><b>Default</b></label>
+      <input type="radio" name="sceneMenu" id="scm-cafe" value="cafe"><label for="scm-cafe"><i class="sw cafe"></i><b>Café</b></label>
+      <input type="radio" name="sceneMenu" id="scm-park" value="park"><label for="scm-park"><i class="sw park"></i><b>Park</b></label>
+      <input type="radio" name="sceneMenu" id="scm-library" value="library"><label for="scm-library"><i class="sw library"></i><b>Library</b></label>
+    </div>
+    <p class="note">Eddie hauls the new set on stage himself.</p>
+  </section>
+
+  <section>
+    <h3>Ambience</h3>
+    <label class="check"><input type="checkbox" id="menuRain"><span>Rain<small>Rain sound, rain in the scene. In the park, Eddie gets his umbrella.</small></span></label>
+    <div class="grid2"><label for="rainVol">volume</label><input type="range" id="rainVol" min="0" max="1" step="0.05"></div>
   </section>
 
   <section>
@@ -156,7 +186,13 @@
 <script src="js/robot/state.js" defer></script>
 <script src="js/robot/model.js" defer></script>
 <script src="js/robot/props.js" defer></script>
+<script src="js/robot/work.js" defer></script>
 <script src="js/robot/behavior.js" defer></script>
+<script src="js/robot/items.js" defer></script>
+<script src="js/scenes/backdrops.js" defer></script>
+<script src="js/scenes/furniture.js" defer></script>
+<script src="js/scenes/rain.js" defer></script>
+<script src="js/robot/stagehand.js" defer></script>
 <script src="js/robot/scene.js" defer></script>
 <script src="js/persona.js" defer></script>
 <script src="js/voice.js" defer></script>

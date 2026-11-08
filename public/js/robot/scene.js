@@ -1,15 +1,5 @@
-/* EddieHD — Puts the scene together each frame: floor, props, Eddie, speech bubble. Also: click Eddie to poke him.
+/* EddieHD — Puts the scene together each frame: backdrop, props, Eddie, speech bubble. Also: click Eddie to poke him.
    Loaded as a plain script (see index.html for the order); top-level names are shared between files. */
-
-function drawFloor() {
-  const y = L.floorY * DPR;
-  const g = ctx.createLinearGradient(0, y, 0, cv.height);
-  g.addColorStop(0, 'rgba(94,242,224,.06)'); g.addColorStop(1, 'rgba(94,242,224,0)');
-  ctx.fillStyle = g; ctx.fillRect(0, y, cv.width, cv.height - y);
-  const lg = ctx.createLinearGradient(0, 0, cv.width, 0);
-  lg.addColorStop(0, 'rgba(94,242,224,0)'); lg.addColorStop(.5, 'rgba(94,242,224,.35)'); lg.addColorStop(1, 'rgba(94,242,224,0)');
-  ctx.fillStyle = lg; ctx.fillRect(0, y, cv.width, Math.max(1, DPR));
-}
 
 /* speech bubble that follows Eddie */
 const bubble = { text: '', until: 0 };
@@ -46,13 +36,14 @@ function frame(t) {
   const tc = hex(target.color); curRGB = curRGB.map((c, i) => lerp(c, tc[i], .1));
   if (t > nextBlink) { blink = .08; setTimeout(() => blink = 1, 110); nextBlink = t + 2500 + Math.random() * 3500; }
   updateLevel();
-  updateRobot(dt, t); updateProp(dt);
-  ctx.fillStyle = '#0b0f15'; ctx.fillRect(0, 0, cv.width, cv.height);
-  drawFloor();
+  updateRobot(dt, t); updateProp(dt); updateRain(dt, t);
+  drawStage(t);                                                        // backdrop (and the new one sliding in)
   const prop = P.state !== 'none' ? P.kind : null;
   if (prop === 'desk') { drawDesk(); drawClaw(); }
   if (prop === 'pod') drawPodBack(t);
   drawRobot(t);
+  drawFront(t);                                                        // café table etc.
+  drawRope();                                                          // over his back and shoulder
   if (prop === 'pod') { drawPodFront(t); drawClaw(); }
   updateBubble(t);
   requestAnimationFrame(frame);

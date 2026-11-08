@@ -3,6 +3,16 @@
 
 /* --- drawing ------------------------------------------------------------ */
 const C = { shell: '#ece6d8', shade: '#c8c0ae', panel: '#d9d2c2', dark: '#2a2f38', joint: '#3a404b' };
+// two-bone reach: given the shoulder (sx, sy) and a target, find the upper-arm and forearm angles (same convention as drawArm:
+// radians from straight down, + swings to screen right). bend = +1 / -1 picks which way the elbow points.
+function reach(sx, sy, tx, ty, bend) {
+  const A = 19, B = 17, dx = tx - sx, dy = ty - sy, dist = Math.hypot(dx, dy) || 1;
+  const d = clamp(dist, Math.abs(A - B) + .5, A + B - .1), ux = dx / dist, uy = dy / dist;
+  const a = (A * A - B * B + d * d) / (2 * d), h = Math.sqrt(Math.max(0, A * A - a * a));
+  const ex = sx + ux * a - uy * h * bend, ey = sy + uy * a + ux * h * bend;   // elbow
+  return [Math.atan2(ex - sx, ey - sy), Math.atan2(sx + ux * d - ex, sy + uy * d - ey)];
+}
+let armFront = false;                                                    // drawing the arm in front of the torso (vs behind it)
 const legAmp = () => .55 + R.run * .3;                                   // thigh swing (radians)
 
 // cr: crouch (packing up), up: how far the legs have retracted into the body, R.spread: star-jump pose
@@ -13,6 +23,10 @@ function drawLeg(i, ph, s, as, hipY, col, cr, up) {
   // The other half is the stance: foot on the ground, straight leg sliding back under the body.
   let th = Math.sin(ph) * legAmp() * R.walkAmt, kn = Math.max(0, Math.cos(ph)) * (1.1 + R.run * .7) * R.walkAmt;
   th += R.sit * 1.45 + cr * 1.2; kn += R.sit * 1.45 + cr * 2.4;      // sitting / crouching: thigh forward, shin folds back
+  if (R.climb > .01) {                                                // on a ladder: knees come up one at a time
+    const up = Math.max(0, Math.sin(R.climbPh + (i > 0 ? 0 : PI)));
+    th = lerp(th, up * 1.3, R.climb); kn = lerp(kn, up * 2.2, R.climb);
+  }
   const hy0 = hipY - up, lat = i * sp * .6;                     // lat: legs kick out sideways in the star jump
   const kx = hipX + Math.sin(th) * 23 * s + Math.sin(lat) * 23, ky = hy0 + Math.cos(th) * 23 * Math.cos(lat);
   const sa = th - kn;
@@ -36,11 +50,27 @@ function drawArm(i, s, as, by, t, col, aF, aIn) {
   if (i === 1 && R.wave > 0) { const w = Math.min(1, R.wave * 3); u = lerp(u, 2.45 + Math.sin(t / 90) * .3, w); v = lerp(v, u + .5, w); }
   if (aF > 0) { u = lerp(u, i * .08, aF); v = lerp(v, i * (PI - .25), aF); }   // pack: arm flat to the side, forearm folded up
   if (R.spread > 0) { u = lerp(u, i * 2.15, R.spread); v = lerp(v, i * 2.35, R.spread); }  // pop: arms flung up and out
+  if (R.haul > .01) {                                                 // hauling: rope over the shoulder, both hands gripping it at the front
+    const d = R.haulDir, far = !armFront;
+    u = lerp(u, d * (far ? 1.6 : 1.9), R.haul); v = lerp(v, d * (far ? .7 : .9), R.haul);   // elbow up and forward, fist pulling the rope down in front of the chest
+  }
+  const hd = R.hand[i > 0 ? 1 : 0];
+  if (hd.w > .01) {                                                   // a hand target (holding, writing, petting, climbing …)
+    const [tu, tv] = reach(sx, sy, hd.x, hd.y + (hd.rel ? by : 0), hd.bend);
+    u = lerp(u, tu, hd.w); v = lerp(v, tv, hd.w);
+  }
   const ex = sx + Math.sin(u) * 19, ey = sy + Math.cos(u) * 19;
   const hx = ex + Math.sin(v) * 17, hy = ey + Math.cos(v) * 17 + Math.sin(t / 70 + (i > 0 ? 0 : 1.9)) * 2.5 * R.typing;
   ctx.strokeStyle = C.joint; ctx.lineWidth = 7; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
   ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(ex, ey); ctx.lineTo(hx, hy); ctx.stroke();
+  if (armFront && R.haul > .3) {                                     // the rope's front end: from over the shoulder down to the hand
+    ctx.strokeStyle = '#c9a86a'; ctx.lineWidth = 3; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(-R.haulDir * 12, -116 + by); ctx.quadraticCurveTo(R.haulDir * 6, -130 + by, hx, hy); ctx.stroke();   // arcs over the top of the shoulder
+  }
   ctx.fillStyle = col; ctx.beginPath(); ctx.arc(hx, hy, 7, 0, 2 * PI); ctx.fill();
+  R.hl[i > 0 ? 1 : 0].x = hx; R.hl[i > 0 ? 1 : 0].y = hy;
+  const m = ctx.getTransform();                                       // remember where the hand is on screen (the last arm drawn is the near one)
+  R.handX = (m.a * hx + m.c * hy + m.e) / DPR; R.handY = (m.b * hx + m.d * hy + m.f) / DPR;
 }
 
 function drawRobot(t) {
@@ -50,8 +80,8 @@ function drawRobot(t) {
   const sc = statusColor();
 
   ctx.save(); ctx.translate(R.x * DPR, L.floorY * DPR); ctx.scale(p, p);
-  if (!R.inPod) { ctx.fillStyle = 'rgba(0,0,0,.45)'; ctx.beginPath(); ctx.ellipse(0, 2, Math.max(16, 42 - R.hop * .8 - R.popY * .4), 7, 0, 0, 2 * PI); ctx.fill(); }
-  ctx.translate(0, -R.hop - R.popY - (R.inPod ? 10 : 0) * (1 - R.walkAmt));    // hop, pop jump, pod platform
+  if (!R.inPod && R.lift < 60) { ctx.fillStyle = `rgba(0,0,0,${.45 * (1 - R.lift / 60)})`; ctx.beginPath(); ctx.ellipse(0, 2, Math.max(16, 42 - R.hop * .8 - R.popY * .4), 7, 0, 0, 2 * PI); ctx.fill(); }
+  ctx.translate(0, -R.hop - R.popY - R.lift - (R.inPod ? 10 : 0) * (1 - R.walkAmt));    // hop, pop jump, seat / ladder, pod platform
 
   const breath = Math.sin(t / 950) * 1.2 * (1 - R.walkAmt);
   // keep the planted foot on the floor: lower the hips by however much the straight stance leg is angled
@@ -75,7 +105,8 @@ function drawRobot(t) {
   if (lIn < .999) for (const i of [far, -far]) drawLeg(i, R.phase + (i > 0 ? 0 : PI), s, as, hipY, i === far && as > .3 ? C.shade : C.shell, cr, lIn * (ext + 6));
 
   // upper body leans into the walk, more when running
-  ctx.save(); ctx.translate(0, hipY); ctx.rotate(clamp(R.vx / maxSp, -1, 1) * (.07 + R.run * .12)); ctx.translate(0, -hipY);
+  ctx.save(); ctx.translate(0, hipY); ctx.rotate(clamp(R.vx / maxSp, -1, 1) * (.07 + R.run * .12) + R.haul * R.haulDir * .2); ctx.translate(0, -hipY);   // hauling: lean hard into the rope
+  armFront = false;
   for (const i of (armsBehind ? [far, -far] : as > .35 ? [far] : [])) drawArm(i, s, as, by, t, armsBehind ? C.shell : C.shade, aF, aIn);
   ctx.fillStyle = C.shell; rr(-31, -116 + by, 62, 64 + st + breath * .6 * (1 - B), 20); ctx.fill();
   if (as > .15) { ctx.fillStyle = C.shade; rr(s > 0 ? -31 : 31 - as * 12, -112 + by, as * 12, 56 + st, 8); ctx.fill(); }
@@ -89,8 +120,14 @@ function drawRobot(t) {
     ctx.strokeStyle = C.shade; ctx.lineWidth = 2.5;
     for (const y of [-99, -91, -83]) { ctx.beginPath(); ctx.moveTo(x0 + 6, y + by); ctx.lineTo(x0 + w - 6, y + by); ctx.stroke(); }
   }
+  {                                                                   // where the rope goes over his shoulder, on screen
+    const m = ctx.getTransform(), ox = -R.haulDir * 12, oy = -116 + by;
+    R.shX = (m.a * ox + m.c * oy + m.e) / DPR; R.shY = (m.b * ox + m.d * oy + m.f) / DPR;
+  }
+  armFront = true;
   if (!armsBehind) for (const i of (as > .35 ? [-far] : [far, -far])) drawArm(i, s, as, by, t, C.shell, aF, aIn);
   ctx.fillStyle = C.joint; rr(-8, -127 + by, 16, 14, 4); ctx.fill();                     // neck
+  drawHeld(by, t);                                                    // cup, pen, book, umbrella (items.js)
 
   // head: tilts while listening; when packed it has closed down over the torso, sits on the floor and rocks a little
   const head0 = -124 + by, hd = lerp(head0, 0, hIn) - head0;
@@ -124,5 +161,5 @@ function drawRobot(t) {
   ctx.restore();   // head tilt
   ctx.restore();   // lean
   ctx.restore();
-  R.headTop = L.floorY - (R.hop + R.popY + (R.inPod ? 10 : 0) * (1 - R.walkAmt) - hy + 38 * al) * L.k;   // bubble anchor: just above the antenna
+  R.headTop = L.floorY - (R.hop + R.popY + R.lift + (R.inPod ? 10 : 0) * (1 - R.walkAmt) - hy + 38 * al) * L.k;   // bubble anchor: just above the antenna
 }

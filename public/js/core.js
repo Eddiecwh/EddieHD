@@ -9,6 +9,8 @@ const prefs = {
   cam: store.get('cam') === '1',
   wake: store.get('wake') === '1',
   fx: store.get('fx') !== '0',
+  scene: store.get('scene') || 'default',
+  rainVol: +(store.get('rainVol') ?? .5),
 };
 function savePref(k, v) { prefs[k] = v; store.set(k, typeof v === 'boolean' ? (v ? '1' : '0') : v); }
 const lerp = (a, b, t) => a + (b - a) * t;

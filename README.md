@@ -26,10 +26,17 @@ public/
     robot/
       face.js          expressions and drawing the face on Eddie's screen (also owns the canvas)
       state.js         Eddie's state, the current prop, layout and sizing
-      model.js         Eddie's body: colours and how each part is drawn
+      model.js         Eddie's body: colours, how each part is drawn, reach() so a hand can be placed on a target
       props.js         desk, charging pod and the claw machine that moves them
-      behavior.js      activities per timer mode, walking/running, attention, pack up / pop out
-      scene.js         draws each frame (floor → props → Eddie → bubble), poke handler
+      work.js          focus-time job per scene: computer · café table · park bench + dog · library ladder + book
+      behavior.js      activities per timer mode, walking/running, ladder, attention, pack up / pop out
+      items.js         things he holds: coffee cup, pen, book, umbrella
+      stagehand.js     scene changes: Eddie walks off, then hauls the new backdrop across on a rope
+      scene.js         draws each frame (backdrop → props → rope → Eddie → bubble), poke handler
+    scenes/
+      backdrops.js     the painted backdrops: default, café, park, library (+ small moving bits)
+      furniture.js     café table + stool, the dog
+      rain.js          rain sound (made with Web Audio), rain in each scene, umbrella logic
     persona.js         Eddie's lines and their style rules
     voice.js           chirps, bubble timing, optional ElevenLabs voice (VOICE_ENABLED, off for now)
     timer.js           pomodoro state machine and timer display
