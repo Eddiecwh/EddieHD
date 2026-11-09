@@ -48,8 +48,10 @@ function updateBubble(now) {
     cls += " side";
     if (b.className !== cls) b.className = cls;
   }
-  b.style.left = x + "px";
-  b.style.top = top - 6 + "px";
+  // placed with transform, not left/top: a box positioned with `left` shrinks to the room on its right, so near the
+  // edge its width would change with its position, which moves the clamp, which changes the width... and it jumps
+  // between two spots (narrow phones, Eddie in a corner). Pinned at left: 0 its width only depends on its text.
+  b.style.transform = `translate(${x}px, ${top - 6}px) translate(-50%, -100%)`;
   b.style.setProperty("--tail", clamp(w / 2 + (R.x - x), 14, w - 14) + "px");
 }
 
