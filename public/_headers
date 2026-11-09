@@ -1,0 +1,7 @@
+# Cloudflare Pages response headers (https://developers.cloudflare.com/pages/configuration/headers/)
+# Other hosts ignore this file.
+
+# Music and rain: browsers keep them for 30 days, so returning listeners don't download the same tracks again.
+# If you ever replace a track, give the new file a new name, or people may hear the old one for up to 30 days.
+/audio/*
+  Cache-Control: public, max-age=2592000

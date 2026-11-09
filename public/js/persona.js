@@ -11,40 +11,81 @@
    - deadpan, literal, blunt adjectives; very short sentences (1–5 words)
    ============================================================ */
 const LINES = {
-   hello: ["Hello, friend. I am Eddie. Small helper. Big job.", "Friend here! Screen is happy mode."],
-   start: ["Understand. Focus start. Phone is enemy. Enemy enemy enemy!", "Understand. Block begin. Brain on. Phone off. Go."],
-   phoneSeen: ["Wait. Rectangle in hand, question?", "Hmm. Glow on face. Suspicious."],
-   phoneNag: ["Phone! Put down, friend. Down down down.", "Glowing rectangle again. Bad. Sneaky. Bad.", "You hold phone. Phone hold you. Not good trade."],
-   phoneGone: ["Good. Phone gone. Screen is happy mode.", "Hands free. Smart smart smart."],
-   away: ["Where friend go, question? Chair empty. Chair not good worker.", "Human missing. Antenna droop. Come back, question?"],
-   back: ["Friend return! Good good good.", "Welcome back. Timer still go. Sit. Work. Win."],
-   focusDone: ["Block done! Strong. Fast. Focused. You are good human.", "Finish! Eddie very proud. Drink water. Move body."],
-   breakDone: ["Rest over. Work again, question? I believe you. Believe believe believe."],
-   skipBreak: ["Understand. Rest now. Early rest. Okay."],
-   skipFocus: ["Understand. Rest skip. Back to work."],
-   pause: ["Understand. Timer sleep. Eddie not sleep. Eddie guard."],
-   resume: ["Timer awake. Go go go."],
-   stop: ["Understand. All stop. Antenna droop, but okay."],
-   how: ["Eddie good. Eddie always good when friend work. You good, question?"],
-   tired: ["Tired normal. Human brain small battery. Finish block. Then big rest."],
-   thanks: ["No thank. We are team."],
-   who: ["I am Eddie. From far far away. I am smart robot. You are lucky human."],
-   joke: ["Why phone always tired, question? Many many notification. Is joke. You laugh now."],
-   love: ["Eddie like friend also. Much much much."],
-   sarcasm: ["Is sarcasm, question? Eddie not understand sarcasm. Eddie understand work."],
-   sceneStart: ["Understand. New place. Eddie bring.", "Understand. Scene change. Eddie strong. Watch watch watch."],
-   sceneLater: ["Understand. New place after nap."],
-   sceneDone: {
-      default: "Home stage again. Simple. Clean. Good.",
-      cafe: "Café now. Warm light. Cup smell. Good work place.",
-      park: "Park now. Tree. Grass. Bug glow. Nice nice nice.",
-      library: "Library now. Quiet. Quiet. Quiet. Book watch you work.",
-   },
-   rainOn: {
-      inside: "Rain outside. Inside dry. Cozy cozy cozy.",
-      park: "Rain! Eddie prepared. Umbrella. Smart smart smart.",
-      default: "Rain sound on. Brain calm. Good.",
-   },
-   rainOff: ["Rain stop. Sky dry now.", "Understand. No more rain."],
-   unknown: ["Not understand. Say different, question?", "Words confuse. Say slow, friend."],
+  hello: [
+    "Hello, friend. I am Eddie. Small helper. Big job.",
+    "Friend here! Screen is happy mode.",
+  ],
+  start: [
+    "Understand. Focus start. Phone is enemy. Enemy enemy enemy!",
+    "Understand. Block begin. Brain on. Phone off. Go.",
+  ],
+  phoneSeen: [
+    "Wait. Rectangle in hand, question?",
+    "Hmm. Glow on face. Suspicious.",
+  ],
+  phoneNag: [
+    "Phone! Put down, friend. Down down down.",
+    "Glowing rectangle again. Bad. Sneaky. Bad.",
+    "You hold phone. Phone hold you. Not good trade.",
+  ],
+  phoneGone: [
+    "Good. Phone gone. Screen is happy mode.",
+    "Hands free. Smart smart smart.",
+  ],
+  away: [
+    "Where friend go, question? Chair empty. Chair not good worker.",
+    "Human missing. Antenna droop. Come back, question?",
+  ],
+  back: [
+    "Friend return! Good good good.",
+    "Welcome back. Timer still go. Sit. Work. Win.",
+  ],
+  focusDone: [
+    "Block done! Strong. Fast. Focused. You are good human.",
+    "Finish! Eddie very proud. Drink water. Move body.",
+  ],
+  breakDone: [
+    "Rest over. Work again, question? I believe you. Believe believe believe.",
+  ],
+  skipBreak: ["Understand. Rest now. Early rest. Okay."],
+  skipFocus: ["Understand. Rest skip. Back to work."],
+  pause: ["Understand. Timer sleep. Eddie not sleep. Eddie guard."],
+  resume: ["Timer awake. Go go go."],
+  stop: ["Understand. All stop. Antenna droop, but okay."],
+  how: ["Eddie good. Eddie always good when friend work. You good, question?"],
+  tired: [
+    "Tired normal. Human brain small battery. Finish block. Then big rest.",
+  ],
+  thanks: ["No thank. We are team."],
+  who: [
+    "I am Eddie. From far far away. I am smart robot. You are lucky human.",
+  ],
+  joke: [
+    "Why phone always tired, question? Many many notification. Is joke. You laugh now.",
+  ],
+  love: ["Eddie like friend also. Much much much."],
+  sarcasm: [
+    "Is sarcasm, question? Eddie not understand sarcasm. Eddie understand work.",
+  ],
+  sceneStart: [
+    "Understand. New place. Eddie bring.",
+    "Understand. Scene change. Eddie strong. Watch watch watch.",
+  ],
+  sceneLater: ["Understand. New place after nap."],
+  sceneDone: {
+    default: "Home stage again. Simple. Clean. Good.",
+    cafe: "Café now. Warm light. Cup smell. Good work place.",
+    park: "Park now. Tree. Grass. Bug glow. Nice nice nice.",
+    library: "Library now. Quiet. Quiet. Quiet. Book watch you work.",
+  },
+  rainOn: {
+    inside: "Rain outside. Inside dry. Cozy cozy cozy.",
+    park: "Rain! Eddie prepared. Umbrella. Smart smart smart.",
+    default: "Rain sound on. Brain calm. Good.",
+  },
+  rainOff: ["Rain stop. Sky dry now.", "Understand. No more rain."],
+  unknown: [
+    "Not understand. Say different, question?",
+    "Words confuse. Say slow, friend.",
+  ],
 };

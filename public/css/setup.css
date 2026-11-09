@@ -21,10 +21,10 @@
   background: var(--glass);
   border: 1px solid var(--line);
   border-radius: 22px;
-  padding: 24px;
+  padding: 28px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 0;
   box-shadow: 0 30px 80px -20px #000
 }
 
@@ -34,26 +34,40 @@
 }
 
 .setup .lede {
-  margin: 4px 0 0;
+  margin: 6px 0 0;
   color: var(--muted)
 }
 
+.setup .card > div:first-child {
+  padding-bottom: 22px
+}
+
+/* each section sits between hairlines with even room above and below, like the menu's sections */
 .field {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
   border: 0;
+  border-top: 1px solid var(--line);
   margin: 0;
-  padding: 0;
+  padding: 20px 0;
   min-width: 0
 }
 
+/* float takes the legend out of the fieldset's border so it lays out like a normal heading (and gets the gap) */
 .legend {
+  float: left;
+  width: 100%;
+  margin-bottom: 2px;
   font: 500 11px var(--f-mono);
   letter-spacing: .14em;
   text-transform: uppercase;
   color: var(--muted);
   padding: 0
+}
+
+.field .note {
+  margin: 0
 }
 
 .seg {
@@ -102,6 +116,7 @@
 }
 
 .begin {
+  margin-top: 4px;
   font: 600 17px var(--f-display);
   padding: 13px;
   border-radius: 14px

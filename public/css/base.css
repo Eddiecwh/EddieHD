@@ -126,3 +126,28 @@ select:disabled {
    opacity: .45;
    cursor: not-allowed
 }
+
+/* selects: our own chevron and a lighter fill so they read as controls on the dark glass,
+   and dark option lists (Windows otherwise draws light text on a light popup) */
+select {
+   appearance: none;
+   -webkit-appearance: none;
+   cursor: pointer;
+   padding-right: 34px;
+   background: #ffffff14 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238790a3' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 11px center / 15px;
+   border-color: rgba(255, 255, 255, .16)
+}
+
+select:hover {
+   background-color: #ffffff1f;
+   border-color: rgba(255, 255, 255, .24)
+}
+
+select option {
+   background: #151b25;
+   color: var(--ink)
+}
+
+select option:disabled {
+   color: var(--muted)
+}

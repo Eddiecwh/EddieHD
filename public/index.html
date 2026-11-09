@@ -16,12 +16,46 @@
 
 <div class="corner">
   <div class="brand">EddieHD</div>
-  <dl class="help" aria-label="Shortcuts">
-    <dt><kbd>space</kbd></dt><dd>pause / resume</dd>
-    <dt><kbd>M</kbd></dt><dd>talk to Eddie</dd>
-    <dt><kbd>esc</kbd></dt><dd>menu</dd>
-    <dt><kbd>click</kbd></dt><dd>poke Eddie</dd>
-  </dl>
+
+  <section class="panel help-panel" id="helpPanel" aria-label="Shortcuts">
+    <h2 class="panel-label">Shortcuts</h2>
+    <button class="fold" data-fold="helpPanel" aria-expanded="true" aria-label="Hide shortcuts"><svg viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg></button>
+    <dl class="help">
+      <dt class="key"><kbd>space</kbd></dt><dd class="key">pause / resume</dd>
+      <dt class="key"><kbd>M</kbd></dt><dd class="key">talk to Eddie</dd>
+      <dt class="key"><kbd>esc</kbd></dt><dd class="key">menu</dd>
+      <dt class="key"><kbd>click</kbd></dt><dd class="key">poke Eddie</dd>
+      <!-- touch screens (no keyboard) -->
+      <dt class="touch"><kbd>tap</kbd></dt><dd class="touch">poke Eddie</dd>
+      <dt class="touch"><kbd>mic</kbd></dt><dd class="touch">talk to Eddie</dd>
+      <dt class="touch"><kbd>menu</kbd></dt><dd class="touch">pause, scene, length</dd>
+    </dl>
+  </section>
+
+  <!-- Music mini player: folded, it keeps play/pause, the track and the credit -->
+  <section class="panel player" id="player" aria-label="Music player">
+    <h2 class="panel-label">Music</h2>
+    <span class="mp-num" id="mpNum"></span>
+    <button class="fold" data-fold="player" aria-expanded="true" aria-label="Hide music controls"><svg viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg></button>
+    <button class="iconbtn mp-play mp-mini" id="mpPlayMini" aria-label="Play music"><svg class="i-play" viewBox="0 0 24 24"><path d="M8 5l11 7-11 7z"/></svg><svg class="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></svg></button>
+    <div class="mp-info">
+      <div class="mp-title" id="mpTitle"></div>
+      <div class="mp-credit">
+        <a href="https://freemusicarchive.org/music/alex-morgan/lofi-study-beats" target="_blank" rel="noopener">Alex Morgan</a>
+        <span aria-hidden="true">·</span>
+        <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>
+      </div>
+    </div>
+    <div class="mp-controls">
+      <button class="iconbtn" id="mpPrev" aria-label="Previous track"><svg viewBox="0 0 24 24"><path d="M7 6v12M18 6l-8 6 8 6z"/></svg></button>
+      <button class="iconbtn mp-play" id="mpPlay" aria-label="Play music"><svg class="i-play" viewBox="0 0 24 24"><path d="M8 5l11 7-11 7z"/></svg><svg class="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></svg></button>
+      <button class="iconbtn" id="mpNext" aria-label="Next track"><svg viewBox="0 0 24 24"><path d="M17 6v12M6 6l8 6-8 6z"/></svg></button>
+    </div>
+    <label class="mp-vol">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4h4l5 4V6l-5 4zM16 9a4 4 0 0 1 0 6"/></svg>
+      <input type="range" id="mpVol" min="0" max="1" step="0.05" aria-label="Music volume">
+    </label>
+  </section>
 </div>
 <main class="stage">
   <div class="clock" aria-live="polite">
@@ -35,7 +69,6 @@
 <div class="status">
   <div class="ind" id="indEye"><i></i><span>eye off</span></div>
   <div class="ind" id="indEar"><i></i><span>ear off</span></div>
-  <div class="ind" id="indVoice"><i></i><span>voice</span></div>
   <button class="iconbtn" id="micBtn" aria-label="Talk to Eddie (M)">
     <svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
   </button>
@@ -78,14 +111,7 @@
     <fieldset class="field">
       <legend class="legend">Sound</legend>
       <label class="check"><input type="checkbox" id="setupRain"><span>Rain<small>Soft rain in the background. Eddie reacts to the weather.</small></span></label>
-    </fieldset>
-    <fieldset class="field">
-      <legend class="legend">Voice</legend>
-      <select class="voiceMode" id="setupVoice" aria-label="Voice">
-        <option value="neural">ElevenLabs voice (off for now)</option>
-        <option value="off">Off (speech bubbles only)</option>
-      </select>
-      <p class="note" id="setupVoiceNote"></p>
+      <label class="check"><input type="checkbox" id="setupMusic"><span>Lo-fi music<small>Study beats by Alex Morgan. Use the player in the corner to skip or change the volume.</small></span></label>
     </fieldset>
     <button type="submit" class="primary begin">Begin focus</button>
   </form>
@@ -151,16 +177,6 @@
   </section>
 
   <section>
-    <h3>Voice</h3>
-    <select class="voiceMode" id="menuVoice" aria-label="Voice">
-      <option value="neural">ElevenLabs voice (off for now)</option>
-      <option value="off">Off (speech bubbles only)</option>
-    </select>
-    <label class="check" id="fxRow"><input type="checkbox" id="fxOn"><span>Alien layer<small>Chorus and soft hum over the ElevenLabs voice.</small></span></label>
-    <div class="row"><button id="testVoice">Test voice</button><span class="note" id="menuVoiceNote"></span></div>
-  </section>
-
-  <section>
     <h3>Talk</h3>
     <div class="log" id="log"></div>
     <form class="compose" id="compose">
@@ -169,7 +185,8 @@
     </form>
   </section>
 
-  <section>
+  <!-- only in DEBUG mode (open the app with ?debug; ?debug=0 turns it off again) -->
+  <section id="testing" hidden>
     <h3>Testing</h3>
     <div class="row">
       <button class="toggle" id="simPhone" aria-pressed="false">Pretend: phone</button>
@@ -177,6 +194,12 @@
       <button id="simWake">Pretend: "Hey Eddie"</button>
     </div>
     <div class="faces" id="faces"></div>
+  </section>
+  <section class="credits-section">
+    <h3>Music credits</h3>
+    <p class="note credits">Music: <a href="https://freemusicarchive.org/music/alex-morgan/lofi-study-beats" target="_blank" rel="noopener">“Lofi Study Beats”</a>
+      by Alex Morgan, from the Free Music Archive. Licensed under
+      <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>. Used without changes.</p>
   </section>
 </aside>
 
@@ -192,6 +215,7 @@
 <script src="js/scenes/backdrops.js" defer></script>
 <script src="js/scenes/furniture.js" defer></script>
 <script src="js/scenes/rain.js" defer></script>
+<script src="js/music.js" defer></script>
 <script src="js/robot/stagehand.js" defer></script>
 <script src="js/robot/scene.js" defer></script>
 <script src="js/persona.js" defer></script>

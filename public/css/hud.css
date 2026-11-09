@@ -54,6 +54,10 @@
   color: var(--warn)
 }
 
+.mode.ready {
+  color: var(--glow)
+}
+
 .time {
   font: 500 clamp(64px, min(21vw, 18vh), 230px)/.95 var(--f-mono);
   font-variant-numeric: tabular-nums;
@@ -95,39 +99,103 @@
   align-items: center
 }
 
+/* top-left column: brand, shortcuts, music. One width and one inner inset (--pad), so the brand text,
+   the panel labels and the panel contents all start on the same line. Each panel folds down to its essentials. */
 .corner {
+  --pad: 14px;
   position: fixed;
-  top: calc(var(--gt) + 8px);
+  top: var(--gt);
   left: var(--gl);
   z-index: 3;
+  width: 252px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  align-items: flex-start
+  gap: 10px
 }
 
 .brand {
+  height: 40px;                  /* same height as the status chips + menu button on the right, so they share a line */
+  display: flex;
+  align-items: center;
+  padding-left: calc(var(--pad) + 1px);   /* + the panels' 1px border */
   font: 600 15px var(--f-display);
   letter-spacing: .04em;
   color: var(--muted)
 }
 
-.help {
-  margin: 0;
-  padding: 10px 12px;
+.panel {
   display: grid;
-  grid-template-columns: auto auto;
-  gap: 7px 10px;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-areas: "label num fold" "body body body";
   align-items: center;
+  column-gap: 8px;
+  padding: 10px var(--pad) var(--pad);
   background: var(--glass);
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: 14px
+}
+
+.panel-label {
+  grid-area: label;
+  margin: 0;
+  font: 600 11px var(--f-mono);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted)
+}
+
+.fold {
+  grid-area: fold;
+  width: 26px;
+  height: 26px;
+  margin-right: -6px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--muted)
+}
+
+.fold:hover {
+  background: #ffffff12;
+  color: var(--ink)
+}
+
+.fold svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform .2s
+}
+
+.panel.folded {
+  padding-bottom: 10px
+}
+
+.panel.folded .fold svg {
+  transform: rotate(180deg)
+}
+
+/* shortcuts */
+.help {
+  grid-area: body;
+  margin: 12px 0 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 9px 12px;
+  align-items: center;
   font: 500 12px var(--f-body);
   color: var(--muted)
 }
 
-.help dt {
-  justify-self: start
+.help-panel.folded .help {
+  display: none
 }
 
 .help dd {
@@ -136,7 +204,7 @@
 
 .help kbd {
   display: inline-block;
-  min-width: 22px;
+  min-width: 48px;
   text-align: center;
   font: 500 11px var(--f-mono);
   color: var(--ink);
@@ -147,9 +215,18 @@
   background: #ffffff08
 }
 
+/* touch screens have no keyboard: the panel lists the touch controls instead of the keys */
+.help .touch {
+  display: none
+}
+
 @media (hover:none) {
-  .help {
+  .help .key {
     display: none
+  }
+
+  .help .touch {
+    display: block
   }
 }
 
@@ -234,10 +311,6 @@
   .ind {
     padding: 8px
   }
-
-  .corner {
-    display: none
-  }
 }
 
 /* ---------- Eddie's speech bubble (follows the robot) ---------- */
@@ -295,4 +368,205 @@
 /* keep the timer readable over busy backdrops */
 .clock {
   text-shadow: 0 2px 18px rgba(0, 0, 0, .55)
+}
+
+/* ---------- Music mini player (in the top-left column) ---------- */
+.player {
+  grid-template-areas:
+    "label num fold"
+    "info info info"
+    "ctrl ctrl ctrl"
+    "vol vol vol"
+}
+
+.mp-num {
+  grid-area: num;
+  font: 500 11px var(--f-mono);
+  color: var(--muted);
+  font-variant-numeric: tabular-nums
+}
+
+.mp-info {
+  grid-area: info;
+  min-width: 0;
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px
+}
+
+.mp-title {
+  font: 600 14px var(--f-display);
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis
+}
+
+.mp-credit {
+  display: flex;
+  gap: 6px;
+  font: 500 11px var(--f-body);
+  color: var(--muted)
+}
+
+.mp-credit a {
+  color: var(--muted);
+  text-decoration: underline;
+  text-decoration-color: var(--line);
+  text-underline-offset: 2px
+}
+
+.mp-credit a:hover {
+  color: var(--glow)
+}
+
+.mp-controls {
+  grid-area: ctrl;
+  margin-top: 14px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px
+}
+
+.player .iconbtn {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px
+}
+
+.player .iconbtn svg {
+  width: 15px;
+  height: 15px;
+  stroke-linejoin: round
+}
+
+.player .mp-controls .mp-play {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%
+}
+
+.mp-play.on {
+  color: var(--glow);
+  border-color: color-mix(in srgb, var(--glow) 40%, transparent)
+}
+
+.mp-play .i-pause,
+.mp-play.on .i-play {
+  display: none
+}
+
+.mp-play.on .i-pause {
+  display: block
+}
+
+.mp-vol {
+  grid-area: vol;
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px
+}
+
+.mp-vol svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  fill: none;
+  stroke: var(--muted);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round
+}
+
+.mp-vol input {
+  flex: 1;
+  width: 0;
+  margin: 0
+}
+
+/* folded: one row with play/pause, the track and its credit, and the unfold button */
+.player .mp-mini {
+  display: none
+}
+
+.player.folded {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas: "mini info fold";
+  column-gap: 12px
+}
+
+.player.folded .mp-mini {
+  display: grid;
+  grid-area: mini;
+  border-radius: 50%
+}
+
+.player.folded .mp-info {
+  margin-top: 0
+}
+
+.player.folded :is(.panel-label, .mp-num, .mp-controls, .mp-vol) {
+  display: none
+}
+
+/* phones: the brand stays top left beside the status chips; the two panels sit side by side under it,
+   folded by default, and open downward over the timer like dropdowns. The timer moves down to clear the folded row. */
+@media (max-width:640px), (max-height:500px) {
+  .corner {
+    --pad: 12px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 8px;
+    pointer-events: none
+  }
+
+  .corner > * {
+    pointer-events: auto
+  }
+
+  .brand {
+    grid-column: 1 / -1;
+    justify-self: start
+  }
+
+  .player.folded {
+    column-gap: 8px
+  }
+
+  .panel.folded {                /* both folded panels the same height, so the row lines up */
+    min-height: 58px;
+    align-content: center
+  }
+
+  .mp-credit {
+    white-space: nowrap;
+    overflow: hidden
+  }
+}
+
+/* portrait phone: the row spans the width, the timer moves down below it */
+@media (max-width:640px) {
+  .corner {
+    right: var(--gr);
+    width: auto
+  }
+
+  .stage {
+    top: calc(var(--gt) + 48px + 66px)
+  }
+}
+
+/* landscape phone (wide but short): the row stays on the left, the timer centres in the space to its right */
+@media (min-width:641px) and (max-height:500px) {
+  .corner {
+    width: 344px
+  }
+
+  .stage {
+    padding-left: calc(var(--gl) + 344px + 16px)
+  }
 }
