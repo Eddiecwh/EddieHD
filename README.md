@@ -30,7 +30,7 @@ pretend phone / away / "Hey Eddie" and a button per face. It's remembered in thi
 
 ## Hosting
 
-Hosted on Cloudflare Pages: no build command, output directory `public`. Every push to `main` deploys.
+Hosted on Cloudflare Workers as static assets: `wrangler.jsonc` points it at `public/`, with no build step. Every push to `main` deploys.
 `public/_headers` tells browsers to keep the audio for 30 days; if you replace a track, give it a new file name.
 
 ## Layout
@@ -38,7 +38,7 @@ Hosted on Cloudflare Pages: no build command, output directory `public`. Every p
 ```
 public/
   index.html           markup only: timer, status bar, setup card, menu
-  _headers             Cloudflare Pages caching rules (audio cached 30 days)
+  _headers             Cloudflare caching rules (audio cached 30 days)
   css/
     base.css           colour + type tokens, reset, buttons, shared form controls
     hud.css            timer, status chips, shortcuts panel, speech bubble

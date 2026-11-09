@@ -1,4 +1,4 @@
-# Cloudflare Pages response headers (https://developers.cloudflare.com/pages/configuration/headers/)
+# Cloudflare response headers (Workers static assets: https://developers.cloudflare.com/workers/static-assets/headers/)
 # Other hosts ignore this file.
 
 # Music and rain: browsers keep them for 30 days, so returning listeners don't download the same tracks again.

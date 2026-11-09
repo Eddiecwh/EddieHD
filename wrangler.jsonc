@@ -1,0 +1,9 @@
+// Cloudflare Workers config: EddieHD is static files only, served straight from public/.
+// public/_headers sets the caching rules (audio kept for 30 days).
+{
+  "name": "eddiehd",
+  "compatibility_date": "2026-11-01",
+  "assets": {
+    "directory": "./public"
+  }
+}
